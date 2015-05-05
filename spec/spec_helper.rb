@@ -1,8 +1,11 @@
 # spec/spec_helper.rb
 require 'rack/test'
 require 'rspec'
+require 'webmock/rspec'
 
 require File.expand_path '../../app/website.rb', __FILE__
+require File.expand_path '../../lib/synchronizer.rb', __FILE__
+
 
 ENV['RACK_ENV'] = 'test'
 

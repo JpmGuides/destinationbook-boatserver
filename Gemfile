@@ -7,4 +7,5 @@ gem 'puma'
 
 group :test do
   gem 'rspec'
+  gem 'webmock'
 end
