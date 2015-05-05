@@ -1,0 +1,8 @@
+server:
+  min_threads: 1
+  max_threads: 32
+  workers: 8
+  ports:
+    - 9000
+    - 3000
+  demonize: false

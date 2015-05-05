@@ -5,7 +5,8 @@
 /.sass-cache/
 Guardfile
 crash.log
-/tmp
-/log
+puma.pid
+puma.state
+server.log
 /config/settings.yml
 /db/database.sqlite3
