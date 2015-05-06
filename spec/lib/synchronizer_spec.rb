@@ -13,6 +13,16 @@ describe Synchronizer do
     }
   } }
 
+  context '#base_url' do
+    before(:each) do
+      allow(subject).to receive(:config).and_return(config)
+    end
+
+    it 'should return the site base url from config' do
+      expect(subject.base_url).to eql("http://test.com/")
+    end
+  end
+
   context '#get_trips' do
     before(:each) do
       allow(subject).to receive(:config).and_return(config)
@@ -84,15 +94,99 @@ describe Synchronizer do
       expect(subject).to receive(:synchronize_wallet).exactly(4)
       subject.synchronize
     end
+
+    it 'should not raise error if trips is empty' do
+      allow(subject).to receive(:load_trips_json).and_return([])
+      allow(subject).to receive(:synchronize_wallet)
+      subject.trips = []
+
+      expect {
+        subject.synchronize
+      }.to_not raise_error
+    end
   end
 
-  it 'should not raise error if trips is empty' do
-    allow(subject).to receive(:load_trips_json).and_return([])
-    allow(subject).to receive(:synchronize_wallet)
-    subject.trips = []
+  context '#synchronize_wallet' do
+    let(:booking) { {"username"=>"TEST", "authentication_token"=>"TEST", "updated_at"=>"2015-05-05T17:16:17Z"} }
+    let(:trip) { {"name"=>"Noël", "start_date"=>"2018-12-18", "end_date"=>"2018-12-28", "updated_at"=>"2014-12-18T08:48:35Z", "bookings"=>[booking]} }
 
-    expect {
-      subject.synchronize
-    }.to_not raise_error
+    it 'should call get wallet if wallet needs to be synchronized' do
+      allow(subject).to receive(:update_wallet?).and_return(true)
+      allow(subject).to receive(:get_wallet)
+
+      expect(subject).to receive(:get_wallet).exactly(1)
+      subject.synchronize_wallet(booking, trip)
+    end
+
+    it 'should not call get wallet if wallet don\'t needs to be synchronized' do
+      allow(subject).to receive(:update_wallet?).and_return(false)
+      allow(subject).to receive(:get_wallet)
+
+      expect(subject).to_not receive(:get_wallet)
+      subject.synchronize_wallet(booking, trip)
+    end
+  end
+
+  context '#newer_time' do
+    it 'should return newer time it is the first argument' do
+      time_a = Time.now
+      time_b = time_a - 3600
+
+      expect(subject.newer_time(time_a, time_b)).to equal(time_a)
+    end
+
+    it 'should return newer time it is the second argument' do
+      time_a = Time.now
+      time_b = time_a + 3600
+
+      expect(subject.newer_time(time_a, time_b)).to equal(time_b)
+    end
+
+    it 'should return time_b if time_a is nil' do
+      time_a = nil
+      time_b = Time.now
+
+      expect(subject.newer_time(time_a, time_b)).to equal(time_b)
+    end
+
+    it 'should return time_a if time_b is nil' do
+      time_a = Time.now
+      time_b = nil
+
+      expect(subject.newer_time(time_a, time_b)).to equal(time_a)
+    end
+
+    it 'should raise error if nor time_a or time_b is kind of Time' do
+      time_a = nil
+      time_b = nil
+
+      expect{
+        subject.newer_time(time_a, time_b)
+      }.to raise_error('No time given to compare')
+    end
+  end
+
+  context '#update_wallet?' do
+    let(:file) { Synchronizer::FileManager.new('test') }
+
+    it 'should return true if file doesn\'t exists' do
+      allow(file).to receive(:exists?).and_return(false)
+
+      expect(subject.update_wallet?(file, Time.now)).to be_truthy
+    end
+
+    it 'should return true if file exists and mtime < compare time' do
+      allow(file).to receive(:exists?).and_return(true)
+      allow(file).to receive(:updated_at).and_return(Time.now - 3600)
+
+      expect(subject.update_wallet?(file, Time.now)).to be_truthy
+    end
+
+    it 'should return false if file exists and mtime > compare time' do
+      allow(file).to receive(:exists?).and_return(true)
+      allow(file).to receive(:updated_at).and_return(Time.now + 3600)
+
+      expect(subject.update_wallet?(file, Time.now)).to be_falsy
+    end
   end
 end
