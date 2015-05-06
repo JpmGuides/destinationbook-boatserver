@@ -1,0 +1,43 @@
+{
+    "client_name": "Neville's Corp",
+    "trips": [
+        {
+            "name": "Hell's bells",
+            "start_date": "2016-03-10",
+            "end_date": "2016-03-15",
+            "updated_at": "2015-03-10T07:43:05Z",
+            "test": "test",
+            "bookings": [
+              {
+                  "username": "NENE",
+                  "authentication_token": "NEVCOABCD",
+                  "updated_at": "2015-04-30T09:25:26Z"
+              },
+              {
+                  "username": "NEV",
+                  "authentication_token": "NEVCOEFGH",
+                  "updated_at": "2015-04-30T09:25:26Z"
+              }
+            ]
+        },
+        {
+            "name": "Tour d'Italie",
+            "start_date": "2017-04-30",
+            "end_date": "2017-05-10",
+            "updated_at": "2015-04-30T09:25:06Z",
+            "test": "test",
+            "bookings": [
+                {
+                    "username": "NEV",
+                    "authentication_token": "NEVCO1234",
+                    "updated_at": "2015-04-30T09:25:26Z"
+                },
+                {
+                    "username": "NEV",
+                    "authentication_token": "NEVCO3456",
+                    "updated_at": "2015-04-30T09:25:26Z"
+                }
+            ]
+        }
+    ]
+}

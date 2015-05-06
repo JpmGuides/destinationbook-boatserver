@@ -9,7 +9,7 @@ server:
 synchronizer:
   api_key: g72HTAiD7ysCjtBxgRpf
   protocol: https
-  hostname: destinationbook-testing.herokuapp.com
+  host: destinationbook-testing.herokuapp.com
   uri:
     trips: export/trips
     wallet: export
