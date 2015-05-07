@@ -37,17 +37,30 @@ class Synchronizer
   #
   # @return [Array] trips
   def load_trips_json
-    json = JSON.load(get_trips) || {}
+    json_string = get_trips
+    json = JSON.load(json_string) || {}
 
     self.trips = json['trips'] || []
-    trips
+    json_string
+  end
+
+  # check if trips are unchanged and writes files with new content if not
+  #
+  # @return [Boolean] true if trips are unmodified
+  def unmodified_trips?
+    file = FileManager.new('public/trips', load_trips_json)
+
+    return true if file.unmodified_data?
+    file.write!
+
+    false
   end
 
   # find all the booking needed to synchronize
   #
   # @return [Array] trips
   def synchronize
-    load_trips_json
+    return if unmodified_trips?
 
     trips.each do |trip|
       trip['bookings'].each do |booking|

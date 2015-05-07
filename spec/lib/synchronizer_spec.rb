@@ -44,39 +44,66 @@ describe Synchronizer do
   context '#load_trips_json' do
     let(:json_trips) { File.open('spec/fixtures/files/trips.json').read }
 
-    it 'should par json and return trips' do
+    it 'should parse json and return and set trips' do
       allow(subject).to receive(:get_trips).and_return(json_trips)
-      trips = subject.load_trips_json
 
-      expect(trips).to be_a(Array)
-      expect(trips.count).to eql(2)
+      subject.load_trips_json
 
-      trip = trips.first
+      expect(subject.trips).to be_a(Array)
+      expect(subject.trips.count).to eql(2)
+
+      trip = subject.trips.first
 
       expect(trip).to have_key('bookings')
       expect(trip['bookings'].count).to eql(2)
     end
 
-    it 'should return empty array if http response is invalid user' do
+    it 'should set empty array in trips if http response is invalid user' do
       allow(subject).to receive(:get_trips).and_return('{"error": "invalid user"}')
 
       expect {
         subject.load_trips_json
       }.to_not raise_error
 
-      expect(subject.load_trips_json).to be_a(Array)
-      expect(subject.load_trips_json).to be_empty
+      expect(subject.trips).to be_a(Array)
+      expect(subject.trips).to be_empty
     end
 
-    it 'should return empty array if http response is empty' do
+    it 'should set empty array in trips if http response is empty' do
       allow(subject).to receive(:get_trips).and_return('')
 
       expect {
         subject.load_trips_json
       }.to_not raise_error
 
-      expect(subject.load_trips_json).to be_a(Array)
-      expect(subject.load_trips_json).to be_empty
+      expect(subject.trips).to be_a(Array)
+      expect(subject.trips).to be_empty
+    end
+  end
+
+  context '#unmodified_trips?' do
+    it 'return true if file and data are same' do
+      allow(subject).to receive(:load_trips_json).and_return('some json data')
+      allow_any_instance_of(Synchronizer::FileManager).to receive(:unmodified_data?).and_return(true)
+
+      expect(subject.unmodified_trips?).to be_truthy
+    end
+
+    it 'return false if file and data are diffrent' do
+      allow(subject).to receive(:load_trips_json).and_return('some json data')
+      allow_any_instance_of(Synchronizer::FileManager).to receive(:unmodified_data?).and_return(false)
+      allow_any_instance_of(Synchronizer::FileManager).to receive(:write!)
+
+      expect(subject.unmodified_trips?).to be_falsy
+    end
+
+    it 'write trips if file and data are diffrent' do
+      allow(subject).to receive(:load_trips_json).and_return('some json data')
+      allow_any_instance_of(Synchronizer::FileManager).to receive(:unmodified_data?).and_return(false)
+      allow_any_instance_of(Synchronizer::FileManager).to receive(:write!)
+
+      expect_any_instance_of(Synchronizer::FileManager).to receive(:write!).exactly(1)
+      expect(subject.unmodified_trips?).to be_falsy
     end
   end
 
@@ -87,7 +114,7 @@ describe Synchronizer do
     ] }
 
     it 'should call "synchronize_wallet" for each booking' do
-      allow(subject).to receive(:load_trips_json).and_return(loaded_trips)
+      allow(subject).to receive(:unmodified_trips?).and_return(false)
       allow(subject).to receive(:synchronize_wallet)
       subject.trips = loaded_trips
 
@@ -95,8 +122,17 @@ describe Synchronizer do
       subject.synchronize
     end
 
+    it 'should not call "synchronize_wallet" for each booking if trips are unmodified' do
+      allow(subject).to receive(:unmodified_trips?).and_return(true)
+      allow(subject).to receive(:synchronize_wallet)
+      subject.trips = loaded_trips
+
+      expect(subject).to_not receive(:synchronize_wallet)
+      subject.synchronize
+    end
+
     it 'should not raise error if trips is empty' do
-      allow(subject).to receive(:load_trips_json).and_return([])
+      allow(subject).to receive(:unmodified_trips?).and_return(false)
       allow(subject).to receive(:synchronize_wallet)
       subject.trips = []
 
