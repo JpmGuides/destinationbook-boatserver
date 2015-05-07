@@ -15,4 +15,10 @@ module RSpecMixin
 end
 
 # For RSpec 2.x
-RSpec.configure { |c| c.include RSpecMixin }
+RSpec.configure do |config|
+  config.include RSpecMixin
+
+  config.after(:all) do
+    system 'rm -rf spec/tmp'
+  end
+end
