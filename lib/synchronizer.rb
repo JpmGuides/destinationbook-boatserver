@@ -71,7 +71,12 @@ class Synchronizer
     booking
   end
 
-
+  # download the wallet from server and wites it to a file
+  #
+  # @param file [Synchronizer::FileManager] the file where to write result
+  # @param username [String] the username of the wallet
+  # @param token [String] the authentication token for the wallet
+  # @param updated_at [Time] the time of last update of the wallet
   def get_wallet(file, username, token, updated_at)
     url = "#{base_url}#{config['uri']['wallet']}"
 

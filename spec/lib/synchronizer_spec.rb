@@ -189,4 +189,45 @@ describe Synchronizer do
       expect(subject.update_wallet?(file, Time.now)).to be_falsy
     end
   end
+
+  context '#get_wallet' do
+    let(:file) { Synchronizer::FileManager.new('tmp/test_wallet.json') }
+    let(:username) { 'AUSENAME' }
+    let(:token) { 'ATOKEN' }
+
+    before(:each) do
+      allow(subject).to receive(:config).and_return(config)
+    end
+
+    it 'should download the booking from username and token' do
+      stub_request(:get, "#{subject.base_url}#{config['uri']['wallet']}")
+        .with(query: {'username' => username, 'authentication_token' => token, 'device[uuid]' => 'boatserver', 'version' => '2.0.0'})
+        .to_return(body: 'get json!', status: 200)
+
+      subject.get_wallet(file, username, token, Time.now)
+
+      expect(
+        a_request(:get, "#{subject.base_url}#{config['uri']['wallet']}")
+        .with(query: {'username' => username, 'authentication_token' => token, 'device[uuid]' => 'boatserver', 'version' => '2.0.0'})
+      ).to have_been_made
+    end
+
+    it 'should write file with response content' do
+      stub_request(:get, "#{subject.base_url}#{config['uri']['wallet']}")
+        .with(query: {'username' => username, 'authentication_token' => token, 'device[uuid]' => 'boatserver', 'version' => '2.0.0'})
+        .to_return(body: 'get json!', status: 200)
+
+      expect(file).to receive(:write!)
+      subject.get_wallet(file, username, token, Time.now)
+    end
+
+    it 'should set file mtime with updated_at time' do
+      stub_request(:get, "#{subject.base_url}#{config['uri']['wallet']}")
+        .with(query: {'username' => username, 'authentication_token' => token, 'device[uuid]' => 'boatserver', 'version' => '2.0.0'})
+        .to_return(body: 'get json!', status: 200)
+
+      expect(file).to receive(:set_mtime)
+      subject.get_wallet(file, username, token, Time.now)
+    end
+  end
 end
