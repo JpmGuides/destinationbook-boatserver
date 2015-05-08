@@ -1,5 +1,6 @@
 require_relative './synchronizer/downloader'
 require_relative './synchronizer/file_manager'
+require_relative './synchronizer/assets'
 require 'yaml'
 require 'json'
 require 'time'
@@ -93,7 +94,8 @@ class Synchronizer
   def get_wallet(file, username, token, updated_at)
     url = "#{base_url}#{config['uri']['wallet']}"
 
-    file.data = Downloader.get(url, 'username' => username, 'authentication_token' => token, 'device[uuid]' => 'boatserver', 'version' => '2.0.0')
+    wallet_data = Downloader.get(url, 'username' => username, 'authentication_token' => token, 'device[uuid]' => 'boatserver', 'version' => '2.0.0')
+    file.data = Assets.download(wallet_data)
     file.write!
     file.set_mtime(updated_at)
   end

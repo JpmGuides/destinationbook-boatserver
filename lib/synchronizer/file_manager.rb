@@ -3,11 +3,12 @@ require 'fileutils'
 
 class Synchronizer
   class FileManager
-    attr_accessor :path, :data
+    attr_accessor :path, :data, :binary
 
-    def initialize(destination, data = nil)
+    def initialize(destination, data = nil, binary = false)
       self.data = data
       self.path = path_from_destination(destination)
+      self.binary = binary
     end
 
     # transform path to be an absolute path
@@ -29,7 +30,7 @@ class Synchronizer
       dir = File.dirname(path)
       FileUtils.mkdir_p(dir) unless Dir.exists?(dir)
 
-      File.open(path, 'w') do |f|
+      File.open(path, binary ? 'wb' : 'w') do |f|
         f.write data
       end
     end

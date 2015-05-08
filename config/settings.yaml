@@ -5,11 +5,12 @@ server:
   ports:
     - 9000
     - 3000
+    - 80
   demonize: false
 synchronizer:
-  api_key: g72HTAiD7ysCjtBxgRpf
+  api_key: rxitSuW3RDcXxX1v7po7
   protocol: https
-  host: destinationbook-testing.herokuapp.com
+  host: destinationbook-staging.herokuapp.com
   uri:
     trips: export/trips
     wallet: export
