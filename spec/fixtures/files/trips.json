@@ -18,6 +18,13 @@
                   "authentication_token": "NEVCOEFGH",
                   "updated_at": "2015-04-30T09:25:26Z"
               }
+            ],
+            "guides":[
+              {
+                "id":"1831.01",
+                "url":"https://destinationbook-staging.s3.amazonaws.com/guides/smartphone/1831.01/guide_tiled.zip?AWSAccessKeyId=AKIAIQ4NKK5EC3TSOQEA&Signature=54Q7MRxpgiv8XMzj1i9eI0iPKfQ%3D&Expires=1431209539",
+                "generated_at":"2015-05-08T08:00:57+00:00"
+              }
             ]
         },
         {
@@ -37,6 +44,18 @@
                     "authentication_token": "NEVCO3456",
                     "updated_at": "2015-04-30T09:25:26Z"
                 }
+            ],
+            "guides":[
+              {
+                "id":"1831.01",
+                "url":"https://destinationbook-staging.s3.amazonaws.com/guides/smartphone/1831.01/guide_tiled.zip?AWSAccessKeyId=AKIAIQ4NKK5EC3TSOQEA&Signature=54Q7MRxpgiv8XMzj1i9eI0iPKfQ%3D&Expires=1431209539",
+                "generated_at":"2015-05-08T08:00:57+00:00"
+              },
+              {
+                "id":"1831.01",
+                "url":"https://destinationbook-staging.s3.amazonaws.com/guides/smartphone/1831.01/guide_tiled.zip?AWSAccessKeyId=AKIAIQ4NKK5EC3TSOQEA&Signature=54Q7MRxpgiv8XMzj1i9eI0iPKfQ%3D&Expires=1431209539",
+                "generated_at":"2015-05-08T08:00:57+00:00"
+              }
             ]
         }
     ]

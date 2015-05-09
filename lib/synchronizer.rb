@@ -69,7 +69,15 @@ class Synchronizer
     end
   end
 
-    file.write!
+  # loop over all guides to download them
+  #
+  # @return [Arry] available trips for client
+  def synchronize_guides
+    trips.each do |trip|
+      trip['guides'].each do |guide|
+        synchronize_guide(guide)
+      end
+    end
   end
 
   # synchronize wallets if it's modified since last_update
@@ -81,10 +89,25 @@ class Synchronizer
     file = FileManager.new("public/wallets/#{booking['username']}_#{booking['authentication_token']}.json")
     updated_at = newer_time(Time.parse(trip['updated_at']), Time.parse(booking['updated_at']))
 
-    return unless update_wallet?(file, updated_at)
+    return unless update?(file, updated_at)
     get_wallet(file, booking['username'], booking['authentication_token'], updated_at)
 
     booking
+  end
+
+  # synchronize guide if it's modified since last_update
+  #
+  # @param booking [Hash] the hash representing the guide
+  # @return [Hash] the hash representing the guide
+  def synchronize_guide(guide)
+    guide_uri = URI(guide['url'])
+    file = FileManager.new("public#{guide_uri.path}")
+    updated_at = Time.parse(guide['generated_at'])
+
+    return unless update?(file, updated_at)
+    get_guide(file, guide_uri, updated_at)
+
+    guide
   end
 
   # download the wallet from server and wites it to a file
@@ -98,6 +121,14 @@ class Synchronizer
 
     wallet_data = Downloader.get(url, 'username' => username, 'authentication_token' => token, 'device[uuid]' => 'boatserver', 'version' => '2.0.0')
     file.data = Assets.download(wallet_data)
+    file.write!
+    file.set_mtime(updated_at)
+  end
+
+  def get_guide(file, uri, updated_at)
+    params = URI.decode_www_form(uri.query).to_h
+
+    file.data = Downloader.get(uri.to_s, params)
     file.write!
     file.set_mtime(updated_at)
   end
@@ -120,7 +151,7 @@ class Synchronizer
   # @param file [Synchronizer::FileManager] the file that may need an update
   # @param compare_time [Time] the trip last update
   # @return [Boolean] true if need for update
-  def update_wallet?(file, compare_time)
+  def update?(file, compare_time)
     return true if !file.exists?
     file.updated_at < compare_time
   end

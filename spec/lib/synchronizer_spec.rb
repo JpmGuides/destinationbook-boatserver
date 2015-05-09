@@ -130,12 +130,36 @@ describe Synchronizer do
     end
   end
 
+  context '#synchronize_guides' do
+    let(:loaded_trips) { [
+      { 'name' => 'trip one', 'guides' => [{'booking' => 'one'}, {'booking' => 'two'}, ]},
+      { 'name' => 'trip two', 'guides' => [{'booking' => 'three'}, {'booking' => 'four'}, ]}
+    ] }
+
+    it 'should call "synchronize_guide" for each booking' do
+      allow(subject).to receive(:synchronize_wallet)
+      subject.trips = loaded_trips
+
+      expect(subject).to receive(:synchronize_guide).exactly(4)
+      subject.synchronize_guides
+    end
+
+    it 'should not raise error if trips is empty' do
+      allow(subject).to receive(:synchronize_guide)
+      subject.trips = []
+
+      expect {
+        subject.synchronize_guides
+      }.to_not raise_error
+    end
+  end
+
   context '#synchronize_wallet' do
     let(:booking) { {"username"=>"TEST", "authentication_token"=>"TEST", "updated_at"=>"2015-05-05T17:16:17Z"} }
     let(:trip) { {"name"=>"Noël", "start_date"=>"2018-12-18", "end_date"=>"2018-12-28", "updated_at"=>"2014-12-18T08:48:35Z", "bookings"=>[booking]} }
 
     it 'should call get wallet if wallet needs to be synchronized' do
-      allow(subject).to receive(:update_wallet?).and_return(true)
+      allow(subject).to receive(:update?).and_return(true)
       allow(subject).to receive(:get_wallet)
 
       expect(subject).to receive(:get_wallet).exactly(1)
@@ -143,11 +167,34 @@ describe Synchronizer do
     end
 
     it 'should not call get wallet if wallet don\'t needs to be synchronized' do
-      allow(subject).to receive(:update_wallet?).and_return(false)
+      allow(subject).to receive(:update?).and_return(false)
       allow(subject).to receive(:get_wallet)
 
       expect(subject).to_not receive(:get_wallet)
       subject.synchronize_wallet(booking, trip)
+    end
+  end
+
+  context '#synchronize_guide' do
+    let(:guide) { {"id" => "1831.01",
+                   "url" => "https://destinationbook-staging.s3.amazonaws.com/guides/smartphone/1831.01/guide_tiled.zip?AWSAccessKeyId=AKIAIQ4NKK5EC3TSOQEA&Signature=NIi6Kqzt8dvo97QVJPV3k0fJjJQ%3D&Expires=1431095065",
+                   "generated_at" => "2015-05-08T08:00:57+00:00"}
+                }
+
+    it 'should call get wallet if wallet needs to be synchronized' do
+      allow(subject).to receive(:update?).and_return(true)
+      allow(subject).to receive(:get_guide)
+
+      expect(subject).to receive(:get_guide).exactly(1)
+      subject.synchronize_guide(guide)
+    end
+
+    it 'should not call get wallet if wallet don\'t needs to be synchronized' do
+      allow(subject).to receive(:update?).and_return(false)
+      allow(subject).to receive(:get_guide)
+
+      expect(subject).to_not receive(:get_guide)
+      subject.synchronize_guide(guide)
     end
   end
 
@@ -190,27 +237,27 @@ describe Synchronizer do
     end
   end
 
-  context '#update_wallet?' do
+  context '#update?' do
     let(:file) { Synchronizer::FileManager.new('test') }
 
     it 'should return true if file doesn\'t exists' do
       allow(file).to receive(:exists?).and_return(false)
 
-      expect(subject.update_wallet?(file, Time.now)).to be_truthy
+      expect(subject.update?(file, Time.now)).to be_truthy
     end
 
     it 'should return true if file exists and mtime < compare time' do
       allow(file).to receive(:exists?).and_return(true)
       allow(file).to receive(:updated_at).and_return(Time.now - 3600)
 
-      expect(subject.update_wallet?(file, Time.now)).to be_truthy
+      expect(subject.update?(file, Time.now)).to be_truthy
     end
 
     it 'should return false if file exists and mtime > compare time' do
       allow(file).to receive(:exists?).and_return(true)
       allow(file).to receive(:updated_at).and_return(Time.now + 3600)
 
-      expect(subject.update_wallet?(file, Time.now)).to be_falsy
+      expect(subject.update?(file, Time.now)).to be_falsy
     end
   end
 
@@ -253,6 +300,49 @@ describe Synchronizer do
 
       expect(file).to receive(:set_mtime)
       subject.get_wallet(file, username, token, Time.now)
+    end
+  end
+
+
+  context '#get_guide' do
+    let(:file) { Synchronizer::FileManager.new('tmp/test_guide.json') }
+    let(:uri) { URI('http://test.com/test_guide.zip?some_param=value&other_param=value') }
+
+    before(:each) do
+      allow_any_instance_of(Synchronizer::FileManager).to receive(:write!).and_return(true)
+      allow_any_instance_of(Synchronizer::FileManager).to receive(:set_mtime).and_return(true)
+    end
+
+    it 'download file from uri' do
+      stub_request(:get, uri.to_s)
+        .with(query: {'some_param' => 'value', 'other_param' => 'value'})
+        .to_return(body: 'get json!', status: 200)
+
+      subject.get_guide(file, uri, Time.now)
+
+      expect(
+        a_request(:get, uri.to_s)
+          .with(query: {'some_param' => 'value', 'other_param' => 'value'})
+      ).to have_been_made
+    end
+
+    it 'write file to FS' do
+      stub_request(:get, uri.to_s)
+        .with(query: {'some_param' => 'value', 'other_param' => 'value'})
+        .to_return(body: 'get json!', status: 200)
+
+      expect(file).to receive(:write!)
+
+      subject.get_guide(file, uri, Time.now)
+    end
+
+    it 'should set file mtime with updated_at time' do
+      stub_request(:get, uri.to_s)
+        .with(query: {'some_param' => 'value', 'other_param' => 'value'})
+        .to_return(body: 'get json!', status: 200)
+
+      expect(file).to receive(:set_mtime)
+      subject.get_guide(file, uri, Time.now)
     end
   end
 end
