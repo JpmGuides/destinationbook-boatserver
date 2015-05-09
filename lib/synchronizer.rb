@@ -45,25 +45,29 @@ class Synchronizer
     json_string
   end
 
-  # check if trips are unchanged and writes files with new content if not
-  #
-  # @return [Boolean] true if trips are unmodified
-  def unmodified_trips?(file)
-    file.unmodified_data?
-  end
-
   # find all the booking needed to synchronize
   #
-  # @return [Array] trips
+  # @return [Boolean] true
   def synchronize
     file = FileManager.new('public/trips', load_trips_json)
-    return if unmodified_trips?(file)
+    return if file.unmodified_data?
 
+    synchronize_wallets
+    synchronize_guides
+
+    file.write!
+  end
+
+  # loop over all trips to proceed to thier download
+  #
+  # @return [Array] available trips for client
+  def synchronize_wallets
     trips.each do |trip|
       trip['bookings'].each do |booking|
         synchronize_wallet(booking, trip)
       end
     end
+  end
 
     file.write!
   end

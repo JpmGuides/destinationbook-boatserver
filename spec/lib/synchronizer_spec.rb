@@ -81,59 +81,51 @@ describe Synchronizer do
     end
   end
 
-  context '#unmodified_trips?' do
-    let(:file) { Synchronizer::FileManager.new('spec/tmp/tmp.json')}
-
-    it 'return true if file and data are same' do
-      allow_any_instance_of(Synchronizer::FileManager).to receive(:unmodified_data?).and_return(true)
-
-      expect(subject.unmodified_trips?(file)).to be_truthy
-    end
-
-    it 'return false if file and data are diffrent' do
-      allow(subject).to receive(:load_trips_json).and_return('some json data')
-      allow_any_instance_of(Synchronizer::FileManager).to receive(:unmodified_data?).and_return(false)
-      allow_any_instance_of(Synchronizer::FileManager).to receive(:write!)
-
-      expect(subject.unmodified_trips?(file)).to be_falsy
-    end
-  end
-
   context '#synchronize' do
     before(:each) do
       allow(subject).to receive(:load_trips_json).and_return('some json data')
+      allow_any_instance_of(Synchronizer::FileManager).to receive(:write!).and_return(true)
     end
 
+    it 'should call synchronizations processes if trips are modified' do
+      allow_any_instance_of(Synchronizer::FileManager).to receive(:unmodified_data?).and_return(false)
+
+      expect(subject).to receive(:synchronize_wallets)
+      expect(subject).to receive(:synchronize_guides)
+
+      subject.synchronize
+    end
+
+    it 'should not call synchronizations processes if trips are not modified' do
+      allow_any_instance_of(Synchronizer::FileManager).to receive(:unmodified_data?).and_return(true)
+
+      expect(subject).to_not receive(:synchronize_wallets)
+      expect(subject).to_not receive(:synchronize_guides)
+
+      subject.synchronize
+    end
+  end
+
+  context '#synchronize_wallets' do
     let(:loaded_trips) { [
       { 'name' => 'trip one', 'bookings' => [{'booking' => 'one'}, {'booking' => 'two'}, ]},
       { 'name' => 'trip two', 'bookings' => [{'booking' => 'three'}, {'booking' => 'four'}, ]}
     ] }
 
     it 'should call "synchronize_wallet" for each booking' do
-      allow(subject).to receive(:unmodified_trips?).and_return(false)
       allow(subject).to receive(:synchronize_wallet)
       subject.trips = loaded_trips
 
       expect(subject).to receive(:synchronize_wallet).exactly(4)
-      subject.synchronize
-    end
-
-    it 'should not call "synchronize_wallet" for each booking if trips are unmodified' do
-      allow(subject).to receive(:unmodified_trips?).and_return(true)
-      allow(subject).to receive(:synchronize_wallet)
-      subject.trips = loaded_trips
-
-      expect(subject).to_not receive(:synchronize_wallet)
-      subject.synchronize
+      subject.synchronize_wallets
     end
 
     it 'should not raise error if trips is empty' do
-      allow(subject).to receive(:unmodified_trips?).and_return(false)
       allow(subject).to receive(:synchronize_wallet)
       subject.trips = []
 
       expect {
-        subject.synchronize
+        subject.synchronize_wallets
       }.to_not raise_error
     end
   end
@@ -229,6 +221,7 @@ describe Synchronizer do
 
     before(:each) do
       allow(subject).to receive(:config).and_return(config)
+      allow_any_instance_of(Synchronizer::FileManager).to receive(:write!).and_return(true)
     end
 
     it 'should download the booking from username and token' do

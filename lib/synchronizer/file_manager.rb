@@ -23,7 +23,7 @@ class Synchronizer
 
     # write data in file given in path
     #
-    # @return [Integer] the size of created file
+    # @return [Synchronizer::FileManager] itself
     def write!
       return if data.nil?
 
@@ -33,6 +33,9 @@ class Synchronizer
       File.open(path, binary ? 'wb' : 'w') do |f|
         f.write data
       end
+      set_mtime(Time.now.utc)
+
+      self
     end
 
     # verify if path exists

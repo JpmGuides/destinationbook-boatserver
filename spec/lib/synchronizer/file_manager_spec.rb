@@ -49,9 +49,9 @@ describe Synchronizer::FileManager do
       expect(File.exists?(relative_path)).to be_truthy
     end
 
-    it 'return the size of size created' do
+    it 'return self' do
       file.data = 'test'
-      expect(file.write!).to be_a(Integer)
+      expect(file.write!).to equal(file)
     end
   end
 
