@@ -8,5 +8,5 @@ crash.log
 puma.pid
 puma.state
 server.log
-/config/settings.yml
+/config/settings.yaml
 /db/database.sqlite3
