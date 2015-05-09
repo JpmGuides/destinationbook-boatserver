@@ -30,13 +30,13 @@ describe Synchronizer do
 
     it 'should download trip from specified url' do
       stub_request(:get, 'http://test.com/trips')
-        .with(query: {api_key: config['api_key']})
+        .with(query: {authentication_token: config['api_key']})
         .to_return(body: 'get json!', status: 200)
 
       expect(subject.get_trips).to eql('get json!')
       expect(
         a_request(:get, 'http://test.com/trips')
-        .with(query: {api_key: config['api_key']})
+        .with(query: {authentication_token: config['api_key']})
       ).to have_been_made
     end
   end
@@ -82,11 +82,12 @@ describe Synchronizer do
   end
 
   context '#unmodified_trips?' do
+    let(:file) { Synchronizer::FileManager.new('spec/tmp/tmp.json')}
+
     it 'return true if file and data are same' do
-      allow(subject).to receive(:load_trips_json).and_return('some json data')
       allow_any_instance_of(Synchronizer::FileManager).to receive(:unmodified_data?).and_return(true)
 
-      expect(subject.unmodified_trips?).to be_truthy
+      expect(subject.unmodified_trips?(file)).to be_truthy
     end
 
     it 'return false if file and data are diffrent' do
@@ -94,20 +95,15 @@ describe Synchronizer do
       allow_any_instance_of(Synchronizer::FileManager).to receive(:unmodified_data?).and_return(false)
       allow_any_instance_of(Synchronizer::FileManager).to receive(:write!)
 
-      expect(subject.unmodified_trips?).to be_falsy
-    end
-
-    it 'write trips if file and data are diffrent' do
-      allow(subject).to receive(:load_trips_json).and_return('some json data')
-      allow_any_instance_of(Synchronizer::FileManager).to receive(:unmodified_data?).and_return(false)
-      allow_any_instance_of(Synchronizer::FileManager).to receive(:write!)
-
-      expect_any_instance_of(Synchronizer::FileManager).to receive(:write!).exactly(1)
-      expect(subject.unmodified_trips?).to be_falsy
+      expect(subject.unmodified_trips?(file)).to be_falsy
     end
   end
 
   context '#synchronize' do
+    before(:each) do
+      allow(subject).to receive(:load_trips_json).and_return('some json data')
+    end
+
     let(:loaded_trips) { [
       { 'name' => 'trip one', 'bookings' => [{'booking' => 'one'}, {'booking' => 'two'}, ]},
       { 'name' => 'trip two', 'bookings' => [{'booking' => 'three'}, {'booking' => 'four'}, ]}

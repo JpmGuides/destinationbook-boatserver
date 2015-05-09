@@ -31,7 +31,7 @@ class Synchronizer
   def get_trips
     url = "#{base_url}#{config['uri']['trips']}"
 
-    Downloader.get(url, api_key: config['api_key'])
+    Downloader.get(url, authentication_token: config['api_key'])
   end
 
   # return the trips available to download
@@ -48,26 +48,24 @@ class Synchronizer
   # check if trips are unchanged and writes files with new content if not
   #
   # @return [Boolean] true if trips are unmodified
-  def unmodified_trips?
-    file = FileManager.new('public/trips', load_trips_json)
-
-    return true if file.unmodified_data?
-    file.write!
-
-    false
+  def unmodified_trips?(file)
+    file.unmodified_data?
   end
 
   # find all the booking needed to synchronize
   #
   # @return [Array] trips
   def synchronize
-    return if unmodified_trips?
+    file = FileManager.new('public/trips', load_trips_json)
+    return if unmodified_trips?(file)
 
     trips.each do |trip|
       trip['bookings'].each do |booking|
         synchronize_wallet(booking, trip)
       end
     end
+
+    file.write!
   end
 
   # synchronize wallets if it's modified since last_update
