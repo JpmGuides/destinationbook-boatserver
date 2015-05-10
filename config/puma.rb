@@ -14,7 +14,7 @@ daemonize  config['server']['demonize']
 
 # Store the pid of the server in the file at “path”.
 
-pidfile 'tmp/puma/puma.pid'
+pidfile 'tmp/puma.pid'
 
 # Use “path” as the file to store the server info state. This is
 # used by “pumactl” to query and control the server.
@@ -32,10 +32,6 @@ stdout_redirect 'log/server.log', 'log/server.log'
 # The default is “0, 16”.
 
 threads  config['server']['min_threads'], config['server']['max_threads']
-
-# Bind the server to “url”. “tcp://”, “unix://” and “ssl://” are the only
-# accepted protocols.
-# The default is “tcp://0.0.0.0:9292”.
 
 # bind 'tcp://0.0.0.0:9292'
 # bind 'ssl://127.0.0.1:9292?key=path_to_key&cert=path_to_cert'
