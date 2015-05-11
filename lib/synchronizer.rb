@@ -58,6 +58,30 @@ class Synchronizer
     file.write!
   end
 
+  # post connections to server
+  #
+  def post_connections
+    path = File.expand_path('public/connections.json')
+    tmp = File.expand_path('public/connections.json.tmp')
+    json_string = ''
+
+    if File.exists?(tmp)
+      json_string += File.read(tmp)
+      system 'rm', tmp
+    end
+    if File.exists?(path)
+      json_string += File.read(path)
+      system 'rm', path
+    end
+
+    Downloader.post("#{base_url}api/bookings/create_connections", connections: "[#{json_string.chop.chop}]", authentication_token: config['api_key'])
+  rescue
+    puts 'error on posting connections'
+    File.open(tmp, 'w') do |file|
+      file.write json_string
+    end
+  end
+
   # loop over all trips to proceed to thier download
   #
   # @return [Array] available trips for client

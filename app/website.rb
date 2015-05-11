@@ -1,5 +1,6 @@
 require 'sinatra'
 require 'sinatra/reloader' if development?
+require 'json'
 
 require File.expand_path('../../config/application', __FILE__)
 
@@ -17,12 +18,36 @@ module Application
     end
 
     get '/export' do
-      username = params[:username].to_s.gsub(/\s/, '').upcase
-      token = params[:authentication_token].to_s.gsub(/\s/, '').upcase
+      format_params
+      save_connections
 
-      send_file File.join('public', 'wallets', "#{username}_#{token}.json")
+      send_file File.join('public', 'wallets', "#{params['username']}_#{params['authentication_token']}.json")
     end
 
     run! if app_file == $0
+
+    protected
+
+    def format_params
+      params['mobile_app'] ||= {}
+      params['device'] ||= {}
+      if params['version']
+        params['mobile_app']['version'] = params['version']
+      end
+
+      params.reject { |k, v| v.empty? }
+      params['device'].merge(params['mobile_app'].inject({}) {|hash, values| hash["mobile_app_#{values.first}"] = values.last; hash })
+
+      params['username']             = params['username'].to_s.gsub(/\s/, '').upcase
+      params['authentication_token'] = params['authentication_token'].to_s.gsub(/\s/, '').upcase
+    end
+
+    def save_connections
+      path = File.expand_path('public/connections.json')
+
+      File.open(path, 'a') do |file|
+        file.write "#{params.to_json}, "
+      end
+    end
   end
 end
