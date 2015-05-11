@@ -47,6 +47,19 @@ describe Synchronizer::Downloader do
 
       expect(a_request(:get, 'http://test.com').with(query: params)).to have_been_made
     end
+
+    it 'should raise error if unsucessfull response' do
+      params = {}
+      subject.params = params
+      stub_request(:get, 'http://test.com').with(query: params).to_return(body: 'get json!', status: 401)
+
+
+      expect {
+        subject.get_http_content
+      }.to raise_error(Synchronizer::Downloader::HTTPError)
+
+      expect(a_request(:get, 'http://test.com').with(query: params)).to have_been_made
+    end
   end
 
   context '#post_http_content' do
@@ -66,6 +79,18 @@ describe Synchronizer::Downloader do
       stub_request(:post, 'http://test.com').with(body: params).to_return(body: 'get json!', status: 200)
 
       expect(subject.post_http_content).to eql('get json!')
+
+      expect(a_request(:post, 'http://test.com').with(body: params)).to have_been_made
+    end
+
+    it 'raise error if unsuccessfull response' do
+      params = {}
+      subject.params = params
+      stub_request(:post, 'http://test.com').with(body: params).to_return(body: 'get json!', status: 404)
+
+      expect {
+        subject.post_http_content
+      }.to raise_error(Synchronizer::Downloader::HTTPError)
 
       expect(a_request(:post, 'http://test.com').with(body: params)).to have_been_made
     end

@@ -5,6 +5,8 @@ class Synchronizer
   class Downloader
     attr_accessor :url, :params, :verb
 
+    class HTTPError < StandardError; end
+
     #
     # CLASS METHODS
     #
@@ -63,6 +65,8 @@ class Synchronizer
       uri.query = URI.encode_www_form(params)
       res = Net::HTTP.get_response(uri)
 
+      raise HTTPError.new("invalid #{res.code} response") unless res.is_a?(Net::HTTPSuccess)
+
       res.body
     end
 
@@ -71,6 +75,8 @@ class Synchronizer
     # @return [String] the body of the executed request
     def post_http_content
       res = Net::HTTP.post_form(uri, params)
+
+      raise HTTPError.new("invalid #{res.code} response") unless res.is_a?(Net::HTTPSuccess)
 
       res.body
     end
