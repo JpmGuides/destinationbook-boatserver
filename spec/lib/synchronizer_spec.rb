@@ -87,20 +87,11 @@ describe Synchronizer do
       allow_any_instance_of(Synchronizer::FileManager).to receive(:write!).and_return(true)
     end
 
-    it 'should call synchronizations processes if trips are modified' do
+    it 'should call synchronizations processes' do
       allow_any_instance_of(Synchronizer::FileManager).to receive(:unmodified_data?).and_return(false)
 
       expect(subject).to receive(:synchronize_wallets)
       expect(subject).to receive(:synchronize_guides)
-
-      subject.synchronize
-    end
-
-    it 'should not call synchronizations processes if trips are not modified' do
-      allow_any_instance_of(Synchronizer::FileManager).to receive(:unmodified_data?).and_return(true)
-
-      expect(subject).to_not receive(:synchronize_wallets)
-      expect(subject).to_not receive(:synchronize_guides)
 
       subject.synchronize
     end

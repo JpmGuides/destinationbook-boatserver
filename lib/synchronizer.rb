@@ -50,11 +50,11 @@ class Synchronizer
   # @return [Boolean] true
   def synchronize
     file = FileManager.new('public/trips', load_trips_json)
-    return if file.unmodified_data?
 
     synchronize_wallets
     synchronize_guides
 
+    file.data = {'trips': trips}.to_json
     file.write!
   end
 
@@ -86,7 +86,8 @@ class Synchronizer
   #
   # @return [Array] available trips for client
   def synchronize_wallets
-    trips.each do |trip|
+    trips.each_with_index do |trip, index|
+      trip['image'] = Assets.download(trip['image'].to_s)
       trip['bookings'].each do |booking|
         synchronize_wallet(booking, trip)
       end
@@ -127,6 +128,7 @@ class Synchronizer
     guide_uri = URI(guide['url'])
     file = FileManager.new("public#{guide_uri.path}")
     updated_at = Time.parse(guide['generated_at'])
+    guide['url'] = guide_uri.path
 
     return unless update?(file, updated_at)
     get_guide(file, guide_uri, updated_at)
