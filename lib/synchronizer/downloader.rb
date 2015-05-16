@@ -1,5 +1,4 @@
 require 'net/http'
-require 'openssl'
 require 'uri'
 
 class Synchronizer
@@ -64,12 +63,7 @@ class Synchronizer
     # @return [String] the body of the executed request
     def get_http_content
       uri.query = URI.encode_www_form(params)
-
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-
-      request = Net::HTTP::Get.new(uri.request_uri)
-      res =  http.request(request)
+      res = Net::HTTP.get_response(uri)
 
       raise HTTPError.new("invalid #{res.code} response") unless res.is_a?(Net::HTTPSuccess)
 
@@ -80,12 +74,7 @@ class Synchronizer
     #
     # @return [String] the body of the executed request
     def post_http_content
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-
-      request = Net::HTTP::Post.new(uri.request_uri)
-      request.set_form_data(params)
-      res =  http.request(request)
+      res = Net::HTTP.post_form(uri, params)
 
       raise HTTPError.new("invalid #{res.code} response") unless res.is_a?(Net::HTTPSuccess)
 
