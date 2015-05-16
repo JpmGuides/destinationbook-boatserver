@@ -79,7 +79,12 @@ class Synchronizer
     #
     # @return [String] the body of the executed request
     def post_http_content
-      res = Net::HTTP.post_form(uri, params)
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+      request = Net::HTTP::Post.new(uri.request_uri)
+      request.set_form_data(params)
+      res =  http.request(request)
 
       raise HTTPError.new("invalid #{res.code} response") unless res.is_a?(Net::HTTPSuccess)
 
