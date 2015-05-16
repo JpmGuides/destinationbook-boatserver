@@ -63,7 +63,12 @@ class Synchronizer
     # @return [String] the body of the executed request
     def get_http_content
       uri.query = URI.encode_www_form(params)
-      res = Net::HTTP.get_response(uri)
+
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+      request = Net::HTTP::Get.new(uri.request_uri)
+      res =  http.request(request)
 
       raise HTTPError.new("invalid #{res.code} response") unless res.is_a?(Net::HTTPSuccess)
 
