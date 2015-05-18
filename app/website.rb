@@ -13,8 +13,17 @@ module Application
     set :static, true
     set :public_folder, File.expand_path('../../public', __FILE__)
 
-    get '/' do
-      'ping'
+    before do
+      content_type :json
+      headers  'Access-Control-Allow-Origin' => '*',
+              'Access-Control-Allow-Methods' => ['OPTIONS', 'GET', 'POST'],
+              'Cache-Control' => 'no-cache, no-store, must-revalidate',
+              'Pragma' => 'no-cache',
+              'Expires' => '0'
+    end
+
+    get '/trips' do
+      File.read('public/trips.json')
     end
 
     get '/export' do
