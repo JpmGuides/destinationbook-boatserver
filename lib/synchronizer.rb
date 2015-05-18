@@ -49,7 +49,7 @@ class Synchronizer
   #
   # @return [Boolean] true
   def synchronize
-    file = FileManager.new('public/trips', load_trips_json)
+    file = FileManager.new('public/trips.json', load_trips_json)
 
     synchronize_wallets
     synchronize_guides
@@ -89,7 +89,11 @@ class Synchronizer
     trips.each_with_index do |trip, index|
       trip['image'] = Assets.download(trip['image'].to_s)
       trip['bookings'].each do |booking|
-        synchronize_wallet(booking, trip)
+        begin
+          synchronize_wallet(booking, trip)
+        rescue
+          puts "unable to sychronize #{trip['username']}"
+        end
       end
     end
   end
