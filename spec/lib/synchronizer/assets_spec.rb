@@ -1,7 +1,7 @@
 require 'spec_helper.rb'
 
 describe Synchronizer::Downloader do
-  subject(:asset) { Synchronizer::Assets.new(json_string) }
+  subject(:asset) { Synchronizer::Assets.new(json_string, {}) }
 
   let(:json_string) { File.read('spec/fixtures/files/wallet.json') }
 
@@ -32,7 +32,7 @@ describe Synchronizer::Downloader do
 
     before(:each) do
       allow(Synchronizer::Downloader).to receive(:get).and_return(true)
-      allow(asset).to receive(:areplace_url)
+      allow(asset).to receive(:replace_url)
       allow_any_instance_of(Synchronizer::FileManager).to receive(:write!)
     end
 

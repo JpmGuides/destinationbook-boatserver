@@ -8,6 +8,10 @@ require 'time'
 class Synchronizer
   attr_accessor :api_key, :trips
 
+  def self.config
+    Synchronizer.new.config
+  end
+
   # return config for synchronizer from settings.yaml
   #
   # @return [Hash] the config
@@ -54,7 +58,7 @@ class Synchronizer
     synchronize_wallets
     synchronize_guides
 
-    file.data = {'trips': trips}.to_json
+    file.data = {'trips' => trips}.to_json
     file.write!
   end
 
@@ -87,6 +91,7 @@ class Synchronizer
   # @return [Array] available trips for client
   def synchronize_wallets
     trips.each_with_index do |trip, index|
+      puts "synchronizing trip #{index}, on #{trips.count}"
       trip['image'] = Assets.download(trip['image'].to_s)
       trip['bookings'].each do |booking|
         begin
@@ -103,7 +108,8 @@ class Synchronizer
   # @return [Arry] available trips for client
   def synchronize_guides
     trips.each do |trip|
-      trip['guides'].each do |guide|
+      trip['guides'].each_with_index do |guide, index|
+        puts "synchronizing guides #{guide['id']}"
         synchronize_guide(guide)
       end
     end
@@ -150,7 +156,7 @@ class Synchronizer
     url = "#{base_url}#{config['uri']['wallet']}"
 
     wallet_data = Downloader.get(url, 'username' => username, 'authentication_token' => token, 'device[uuid]' => 'boatserver', 'version' => '2.0.0')
-    file.data = Assets.download(wallet_data)
+    file.data = Assets.download(wallet_data, without_guides: true)
     file.write!
     file.set_mtime(updated_at)
   end
