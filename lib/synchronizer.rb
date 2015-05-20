@@ -92,7 +92,6 @@ class Synchronizer
   def synchronize_wallets
     trips.each_with_index do |trip, index|
       puts "synchronizing trip #{index}, on #{trips.count}"
-      trip['image'] = Assets.download(trip['image'].to_s)
       trip['bookings'].each do |booking|
         begin
           synchronize_wallet(booking, trip)
