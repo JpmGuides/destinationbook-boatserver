@@ -15,7 +15,7 @@ start() {
   source /etc/profile.d/rvm.sh
 
   cd /var/www/destinationbook.com
-  git pull
+
   bundle install
   bundle exec puma -C config/puma.rb
 

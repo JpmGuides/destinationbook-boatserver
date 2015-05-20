@@ -37,9 +37,7 @@ class Synchronizer
     def get_asset(url)
       uri = URI.parse(url)
 
-      unless options.has_key?(:without_guides) && uri.path.include?('guides')
-        FileManager.new(['public', uri.path], Downloader.get(url, URI.decode_www_form(uri.query).to_h), true).write!
-      end
+      FileManager.new(['public', uri.path], Downloader.get(url, URI.decode_www_form(uri.query).to_h), true).write!
 
       replace_url(url, uri.path)
     end
