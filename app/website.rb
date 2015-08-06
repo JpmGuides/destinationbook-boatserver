@@ -26,6 +26,10 @@ module Application
       File.read('public/trips.json')
     end
 
+    get '/last_update' do
+      {time: File.mtime('public/trips.json')}.to_json
+    end
+
     get '/export' do
       format_params
       save_connections

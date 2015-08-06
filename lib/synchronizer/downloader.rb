@@ -17,6 +17,7 @@ class Synchronizer
     # @param params [Hash] hash of parameters
     # @return [String] the body of the response
     def self.get(url, params = {})
+      puts(url)
       self.new(url, params, :get).download
     end
 
@@ -67,6 +68,7 @@ class Synchronizer
 
       raise HTTPError.new("invalid #{res.code} response") unless res.is_a?(Net::HTTPSuccess)
 
+      puts res.code
       res.body
     end
 

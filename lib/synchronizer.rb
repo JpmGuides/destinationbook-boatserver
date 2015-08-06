@@ -33,20 +33,32 @@ class Synchronizer
   #
   # @return [String] data retrieved from destinationbook
   def get_trips
+    trips = []
     url = "#{base_url}#{config['uri']['trips']}"
+    page = 0
 
-    Downloader.get(url, authentication_token: config['api_key'])
+    begin
+      puts(page)
+
+      json_string = Downloader.get(url, authentication_token: config['api_key'], page: page)
+
+      json = JSON.load(json_string) || {}
+      page_trips = json['trips'] || []
+      trips += page_trips
+
+      page = page + 1
+    end while page_trips.count > 0
+
+    puts trips.count
+    trips
   end
 
   # return the trips available to download
   #
   # @return [Array] trips
   def load_trips_json
-    json_string = get_trips
-    json = JSON.load(json_string) || {}
-
-    self.trips = json['trips'] || []
-    json_string
+    self.trips = get_trips
+    trips.to_json
   end
 
   # find all the booking needed to synchronize
@@ -143,6 +155,8 @@ class Synchronizer
     get_guide(file, guide_uri, updated_at)
 
     guide
+  rescue
+    puts "unable to synchronize guide"
   end
 
   # download the wallet from server and wites it to a file
