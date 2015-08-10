@@ -168,7 +168,7 @@ class Synchronizer
   def get_wallet(file, username, token, updated_at)
     url = "#{base_url}#{config['uri']['wallet']}"
 
-    wallet_data = Downloader.get(url, 'username' => username, 'authentication_token' => token, 'device[uuid]' => 'boatserver', 'version' => '2.0.0')
+    wallet_data = Downloader.get(url, 'username' => username, 'authentication_token' => token, 'device[uuid]' => config['device']['uuid'], 'version' => '2.0.0')
     file.data = Assets.download(wallet_data, without_guides: true)
     file.write!
     file.set_mtime(updated_at)
