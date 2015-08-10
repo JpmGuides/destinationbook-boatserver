@@ -10,6 +10,9 @@ describe Synchronizer do
     'uri' => {
       'trips' => 'trips',
       'wallet' => 'wallet'
+    },
+    'device' => {
+      'uuid' => 'boatserver'
     }
   } }
 
@@ -30,19 +33,22 @@ describe Synchronizer do
 
     it 'should download trip from specified url' do
       stub_request(:get, 'http://test.com/trips')
-        .with(query: {authentication_token: config['api_key']})
-        .to_return(body: 'get json!', status: 200)
+        .with(query: {authentication_token: config['api_key'], page: 0})
+        .to_return(body: '{ "trips": [{"get": "json!"}]}', status: 200)
+      stub_request(:get, 'http://test.com/trips')
+        .with(query: {authentication_token: config['api_key'], page: 1})
+        .to_return(body: '{ "trips": []}', status: 200)
 
-      expect(subject.get_trips).to eql('get json!')
+      expect(subject.get_trips).to eql([{"get" => "json!"}])
       expect(
         a_request(:get, 'http://test.com/trips')
-        .with(query: {authentication_token: config['api_key']})
+        .with(query: {authentication_token: config['api_key'], page: 0})
       ).to have_been_made
     end
   end
 
   context '#load_trips_json' do
-    let(:json_trips) { File.open('spec/fixtures/files/trips.json').read }
+    let(:json_trips) { JSON.load(File.open('spec/fixtures/files/trips.json').read)['trips'] }
 
     it 'should parse json and return and set trips' do
       allow(subject).to receive(:get_trips).and_return(json_trips)
@@ -56,28 +62,6 @@ describe Synchronizer do
 
       expect(trip).to have_key('bookings')
       expect(trip['bookings'].count).to eql(2)
-    end
-
-    it 'should set empty array in trips if http response is invalid user' do
-      allow(subject).to receive(:get_trips).and_return('{"error": "invalid user"}')
-
-      expect {
-        subject.load_trips_json
-      }.to_not raise_error
-
-      expect(subject.trips).to be_a(Array)
-      expect(subject.trips).to be_empty
-    end
-
-    it 'should set empty array in trips if http response is empty' do
-      allow(subject).to receive(:get_trips).and_return('')
-
-      expect {
-        subject.load_trips_json
-      }.to_not raise_error
-
-      expect(subject.trips).to be_a(Array)
-      expect(subject.trips).to be_empty
     end
   end
 
