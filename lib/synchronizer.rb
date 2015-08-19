@@ -109,6 +109,7 @@ class Synchronizer
           synchronize_wallet(booking, trip)
         rescue
           puts "unable to sychronize #{trip['username']}"
+          raise
         end
       end
     end

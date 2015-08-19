@@ -14,5 +14,5 @@ synchronizer:
   uri:
     trips: export/trips
     wallet: export
-device:
-  uuid: 'boatserver'
+  device:
+    uuid: 'boatserver'
