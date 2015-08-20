@@ -43,7 +43,7 @@ class Synchronizer
     end
 
     def replace_url(url, path)
-      replacement_url = File.join(["http://#{local_ip}.xip.io", path])
+      replacement_url = File.join(["http://#{local_ip}.xip.io#{local_port}", path])
 
       json.gsub!(url, replacement_url)
     end
@@ -53,6 +53,16 @@ class Synchronizer
     #
     def local_ip
       Synchronizer.config['local_url']
+    end
+
+    def local_port
+      if Synchronizer.config.has_key?('local_port') && Synchronizer.config['local_port'].to_i != 80
+        ":#{Synchronizer.config['local_port']}"
+      else
+        ''
+      end
+    rescue
+      ''
     end
   end
 end
