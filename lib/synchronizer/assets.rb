@@ -37,7 +37,9 @@ class Synchronizer
     def get_asset(url)
       uri = URI.parse(url)
 
-      FileManager.new(['public', uri.path], Downloader.get(url, URI.decode_www_form(uri.query).to_h), true).write!
+      unless File.exists?(File.join(['public', uri.path]))
+        FileManager.new(['public', uri.path], Downloader.get(url, URI.decode_www_form(uri.query).to_h), true).write!
+      end
 
       replace_url(url, uri.path)
     end
