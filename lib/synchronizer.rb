@@ -4,6 +4,7 @@ require_relative './synchronizer/assets'
 require 'yaml'
 require 'json'
 require 'time'
+require 'net/ftp'
 
 class Synchronizer
   attr_accessor :api_key, :trips
@@ -81,6 +82,12 @@ class Synchronizer
     tmp = File.expand_path('public/connections.json.tmp')
     json_string = ''
 
+    Net::FTP.open(config['ftp_host'], config['ftp_username'], config['ftp_password']) do |ftp|
+      ftp.passive = true
+      ftp.puttextfile(path)
+      ftp.puttextfile(tmp)
+    end
+
     if File.exists?(tmp)
       json_string += File.read(tmp)
       system 'rm', tmp
@@ -89,8 +96,6 @@ class Synchronizer
       json_string += File.read(path)
       system 'rm', path
     end
-
-    Downloader.post("#{base_url}api/bookings/create_connections", connections: "[#{json_string.chop.chop}]", authentication_token: config['api_key'])
   rescue
     puts 'error on posting connections'
     File.open(tmp, 'w') do |file|
