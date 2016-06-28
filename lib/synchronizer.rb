@@ -50,17 +50,6 @@ class Synchronizer
       page = page + 1
     end while page_trips.count > 0
 
-
-    self.guides = []
-    trips.each do |trip|
-      trip['guides'].each do |guide|
-        guides.push(guide)
-      end
-    end
-    guides.uniq! {|g| g['id']}
-
-    trips.reject! {|t| t['type'] == 'content'}
-
     puts trips.count
     trips
   end
@@ -70,7 +59,23 @@ class Synchronizer
   # @return [Array] trips
   def load_trips_json
     self.trips = get_trips
+    load_guides_json
+    trips.reject! {|t| t['type'] == 'content'}
     trips.to_json
+  end
+
+  # extract all differents guides for trips
+  #
+  # @return [Array] guides
+  def load_guides_json
+    self.guides = []
+    trips.each do |trip|
+      if trip.has_key?('guides') && trip['guides'].is_a?(Array)
+        trip['guides'].each do |guide|
+          guides.push(guide)
+        end
+      end
+    end
   end
 
   # find all the booking needed to synchronize
