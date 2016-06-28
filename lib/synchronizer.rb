@@ -7,7 +7,7 @@ require 'time'
 require 'net/ftp'
 
 class Synchronizer
-  attr_accessor :api_key, :trips
+  attr_accessor :api_key, :trips, :guides
 
   def self.config
     Synchronizer.new.config
@@ -49,6 +49,17 @@ class Synchronizer
 
       page = page + 1
     end while page_trips.count > 0
+
+
+    self.guides = []
+    trips.each do |trip|
+      trip['guides'].each do |guide|
+        guides.push(guide)
+      end
+    end
+    guides.uniq! {|g| g['id']}
+
+    trips.reject! {|t| t['type'] == 'content'}
 
     puts trips.count
     trips
@@ -109,6 +120,7 @@ class Synchronizer
   def synchronize_wallets
     trips.each_with_index do |trip, index|
       puts "synchronizing trip #{index}, on #{trips.count}"
+
       trip['bookings'].each do |booking|
         begin
           synchronize_wallet(booking, trip)
@@ -124,11 +136,10 @@ class Synchronizer
   #
   # @return [Arry] available trips for client
   def synchronize_guides
-    trips.each do |trip|
-      trip['guides'].each_with_index do |guide, index|
-        puts "synchronizing guides #{guide['id']}"
-        synchronize_guide(guide)
-      end
+    guides.each_with_index do |guide, index|
+      puts "synchronizing guides #{guide['id']}"
+      synchronize_guide(guide)
+      genereate_trip_json(guide)
     end
   end
 
@@ -209,5 +220,57 @@ class Synchronizer
   def update?(file, compare_time)
     return true if !file.exists?
     file.updated_at < compare_time
+  end
+
+  # generate trip.json for each guide_ids
+  #
+  # @param guide [Hash] representing the guides data
+  def genereate_trip_json(guide)
+    trip_json = JSON.parse(File.read('lib/synchronizer/base_trip.json'))
+    soft_id = guide['id'].gsub('.', '-')
+    soft_id.upcase!
+
+    trip_json['reference'] = soft_id
+    trip_json['file_count'] = trip_json['file_count'] + 1
+    trip_json['files_size'] = trip_json['files_size'] + guide['size']
+    trip_json['name'] = guide['name']
+    trip_json['description'] = guide['description']
+    trip_json['token'] = "HKLF#{soft_id}"
+
+    guide_json = {
+      "size" => guide['size'],
+      "generated_at" => guide['generated_at'],
+      "id" => guide['id'],
+      "order" => 1,
+      "url" => "http://192.168.2.1.xip.io/guides/smartphone/#{guide['id']}/guide_tiled.zip"
+    }
+    trip_json['guides'].push(guide_json)
+
+    FileManager.new("public/wallets/GUEST_HKLF#{soft_id}.json", trip_json.to_json).write!
+
+    trip = {
+      'name' => guide['name'],
+      'description' => guide['description'],
+      'start_date' => nil,
+      'end_date' => nil,
+      'language' => guide['language'],
+      'updated_at' => guide['generated_at'],
+      'type' => 'content',
+      'image' => '',
+      'bookings' => [
+        {
+          'username' => 'GUEST',
+          'authentication_token' => "HKLF#{soft_id}",
+          'updated_at' => guide['generated_at']
+        }
+      ],
+      "guides" => [
+        guide
+      ]
+    }
+
+    trips.push(trip)
+
+    trip
   end
 end
