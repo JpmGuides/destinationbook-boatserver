@@ -241,13 +241,15 @@ class Synchronizer
     trip_json['name'] = guide['name']
     trip_json['description'] = guide['description']
     trip_json['token'] = "HKLF#{soft_id}"
+    trip_json['styles']['background_image']['url'] = "http://#{config['local_url']}.xip.io/export_cache/backgrounds/aqua.jpg"
+    trip_json['styles']['logo']['url'] = "http://#{config['local_url']}.xip.io/export_cache/logo/client/11.png"
 
     guide_json = {
       "size" => guide['size'],
       "generated_at" => guide['generated_at'],
       "id" => guide['id'],
       "order" => 1,
-      "url" => "http://192.168.2.1.xip.io/guides/smartphone/#{guide['id']}/guide_tiled.zip"
+      "url" => "http://#{config['local_url']}.xip.io/guides/smartphone/#{guide['id']}/guide_tiled.zip"
     }
     trip_json['guides'].push(guide_json)
 
