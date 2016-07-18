@@ -1,0 +1,69 @@
+{
+  "version": "1.0.0",
+  "token": "",
+  "name": "",
+  "description": "",
+  "reference": "",
+  "start_date": null,
+  "end_date": null,
+  "language": "en",
+  "maps": [],
+  "country": null,
+  "styles": {
+    "background_colour": "#ffffff",
+    "trip_title_colour": "#000000",
+    "home_buttons": "#ED6C00",
+    "hover_home_button_colour": "#4E6579",
+    "toolbar_buttons": "#FFFFFF",
+    "rounded_corners": "0",
+    "toolbar": "#ed6c00 0%, #EA822C 100%",
+    "navbar_buttons": "#FFFFFF",
+    "hover_nav_button_colour": "#4E6579",
+    "nav_tile_colour": "#ffffff",
+    "button_title": "#000000",
+    "button_subtitle": "#949494",
+    "button_subtitle_2": "#949494",
+    "list_separator": "#8E9296, #4e6579",
+    "day_background": "#FEE7D3",
+    "poi_text": "#131864",
+    "caption_text": "#000000",
+    "caption_background": "#FFFFFF",
+    "bold_text": "#000000",
+    "background_image": {
+      "path": "background.jpg",
+      "url": "http://192.168.2.1.xip.io/export_cache/backgrounds/aqua.jpg",
+      "size": 210257
+    },
+    "email_links": "#131864",
+    "logo": {
+      "path": "logo.png",
+      "url": "http://192.168.2.1.xip.io/export_cache/logo/client/11.png",
+      "size": 21219
+    }
+  },
+  "schedule": [],
+  "contacts": [
+    {
+      "id": 993508,
+      "address2": null,
+      "city": "Hamburg",
+      "company": "Hapag-Lloyd Kreuzfahrten GmbH",
+      "email": "",
+      "emergency_phone": "00494030014705",
+      "phone": "",
+      "fax": null,
+      "website": null,
+      "zip": "20095",
+      "comment": null,
+      "address1": "Ballindamm 25",
+      "category": "Cruise line",
+      "country": "Germany",
+      "images": []
+    }
+  ],
+  "documents": [],
+  "guides": [
+  ],
+  "file_count": 2,
+  "files_size": 231476
+}

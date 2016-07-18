@@ -65,6 +65,21 @@ describe Synchronizer do
     end
   end
 
+  context '#load_guides_json' do
+    let(:json_trips) { JSON.load(File.open('spec/fixtures/files/trips.json').read)['trips'] }
+
+    it 'should parse json and return and set trips' do
+      subject.trips = json_trips
+
+      expect(subject.trips).to be_a(Array)
+      expect(subject.trips.count).to eql(2)
+
+      subject.load_guides_json
+
+      expect(subject.guides.count).to eql(3)
+    end
+  end
+
   context '#synchronize' do
     before(:each) do
       allow(subject).to receive(:load_trips_json).and_return('some json data')
@@ -114,14 +129,19 @@ describe Synchronizer do
     it 'should call "synchronize_guide" for each booking' do
       allow(subject).to receive(:synchronize_wallet)
       subject.trips = loaded_trips
+      subject.load_guides_json
 
       expect(subject).to receive(:synchronize_guide).exactly(4)
+      expect(subject).to receive(:genereate_trip_json).exactly(4)
+
       subject.synchronize_guides
     end
 
     it 'should not raise error if trips is empty' do
       allow(subject).to receive(:synchronize_guide)
+      allow(subject).to receive(:genereate_trip_json)
       subject.trips = []
+      subject.load_guides_json
 
       expect {
         subject.synchronize_guides
