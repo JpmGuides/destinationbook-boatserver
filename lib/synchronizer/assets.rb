@@ -38,7 +38,7 @@ class Synchronizer
       uri = URI.parse(url)
 
       unless File.exists?(File.join(['public', uri.path]))
-        FileManager.new(['public', uri.path], Downloader.get(url, URI.decode_www_form(uri.query).to_h), true).write!
+        FileManager.new(['public', uri.path], Downloader.get(url, URI.decode_www_form(uri.query)), true).write!
       end
 
       replace_url(url, uri.path)

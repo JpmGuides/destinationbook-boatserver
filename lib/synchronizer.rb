@@ -197,7 +197,7 @@ class Synchronizer
   end
 
   def get_guide(file, uri, updated_at)
-    params = URI.decode_www_form(uri.query).to_h
+    params = URI.decode_www_form(uri.query)
 
     file.data = Downloader.get(uri.to_s, params)
     file.write!
