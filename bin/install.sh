@@ -14,7 +14,7 @@ cd /var/www
 mkdir destinationbook.com
 cd destinationbook.com
 git clone git@github.com:JpmGuides/destinationbook-boatserver.git .
-cp config/settings.yaml.samp config/settings.yaml
+cp config/settings.yaml.sample config/settings.yaml
 bundle install
 
 # make server start at boot time
