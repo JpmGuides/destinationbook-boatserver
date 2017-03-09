@@ -19,14 +19,16 @@ task :check do
   print ": #{trips['trips'].count} trips to verifiy.... "
 
   trips['trips'].each do |trip|
-    filename = "#{trip['bookings'][0]['username']}_#{trip['bookings'][0]['authentication_token']}.json"
-    wallet_path = File.join([wallets_path,  filename])
-    path_to_verify << wallet_path
+    trip['bookings'].each do |booking|
+      filename = "#{booking['username']}_#{booking['authentication_token']}.json"
+      wallet_path = File.join([wallets_path,  filename])
+      path_to_verify << wallet_path
 
-    unless File.exists?(wallet_path)
-      puts "done \t=> FAIL"
-      puts "ERROR : missing wallet file #{wallet_path}"
-      return 1
+      unless File.exists?(wallet_path)
+        puts "done \t=> FAIL"
+        puts "ERROR : missing wallet file #{wallet_path}"
+        return 1
+      end
     end
   end
 
