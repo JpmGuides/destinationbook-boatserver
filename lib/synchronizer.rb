@@ -76,6 +76,10 @@ class Synchronizer
         end
       end
     end
+
+    guides.uniq! do |guide|
+      guide['id']
+    end
   end
 
   # find all the booking needed to synchronize
