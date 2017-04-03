@@ -45,7 +45,7 @@ class Synchronizer
     end
 
     def replace_url(url, path)
-      replacement_url = File.join(["http://#{local_ip}.xip.io#{local_port}", path])
+      replacement_url = File.join(["http://#{local_ip}.xip.io#{local_port}", path + '?'])
 
       json.gsub!(url, replacement_url)
     end
