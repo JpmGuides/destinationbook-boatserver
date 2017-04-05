@@ -34,7 +34,11 @@ module Application
       format_params
       save_connections
 
-      send_file File.join('public', 'wallets', "#{params['username']}_#{params['authentication_token']}.json")
+      begin
+        File.read("public/wallets/#{params['username']}_#{params['authentication_token']}.json")
+      rescue => e
+        halt 404, e.inspect
+      end
     end
 
     run! if app_file == $0
