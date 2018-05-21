@@ -47,7 +47,7 @@ class Guide
   def unzip
     puts "unzip #{@id}"
 
-    return if (updated_at <= File.mtime(web_path))
+    return if File.exist?(web_path) && (updated_at <= File.mtime(web_path))
 
     FileUtils.rm_rf(web_path) if File.exist?(web_path)
     FileUtils.mkdir_p(web_path)
