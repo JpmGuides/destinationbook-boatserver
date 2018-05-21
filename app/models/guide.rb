@@ -49,7 +49,7 @@ class Guide
 
     return if (updated_at <= File.mtime(web_path))
 
-    FileUtils.rm_rf(web_path)
+    FileUtils.rm_rf(web_path) if File.exist?(web_path)
     FileUtils.mkdir_p(web_path)
 
     Zip::File.open(zip_path) do |zip_file|
