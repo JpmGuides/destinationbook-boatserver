@@ -1,6 +1,5 @@
 require 'yard'
-require 'yard/rest'
-require "yard/sinatra"
+require 'yard/sinatra'
 
 namespace :api_doc do
   desc "create api doc"
