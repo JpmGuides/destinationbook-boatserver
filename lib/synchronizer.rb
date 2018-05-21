@@ -1,6 +1,7 @@
 require_relative './synchronizer/downloader'
 require_relative './synchronizer/file_manager'
 require_relative './synchronizer/assets'
+require_relative '../app/models/guide'
 require 'yaml'
 require 'json'
 require 'time'
@@ -88,8 +89,10 @@ class Synchronizer
   def synchronize
     file = FileManager.new('public/trips.json', load_trips_json)
 
-    synchronize_wallets
-    synchronize_guides
+    #synchronize_wallets
+    #synchronize_guides
+
+    Guide.all.each(&:unzip)
 
     file.data = {'trips' => trips}.to_json
     file.write!

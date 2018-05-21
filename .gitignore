@@ -10,3 +10,4 @@ puma.state
 server.log
 /config/settings.yaml
 /db/database.sqlite3
+.yardoc
