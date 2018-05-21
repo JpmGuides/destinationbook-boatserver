@@ -89,8 +89,8 @@ class Synchronizer
   def synchronize
     file = FileManager.new('public/trips.json', load_trips_json)
 
-    #synchronize_wallets
-    #synchronize_guides
+    synchronize_wallets
+    synchronize_guides
 
     Guide.all.each(&:unzip)
 
