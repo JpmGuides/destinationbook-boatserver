@@ -36,10 +36,14 @@ class Guide
     File.join(GUIDE_WEB_PATH, @id)
   end
 
+  def api_path
+    File.join('guides', @id)
+  end
+
   def to_json(arg = nil)
     "{
       'id': '#{@id}',
-      'path': '#{web_path}'
+      'path': '#{api_path}'
       'updated_at': '#{updated_at}'
     }"
   end
