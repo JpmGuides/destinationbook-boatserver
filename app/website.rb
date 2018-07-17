@@ -219,7 +219,7 @@ module Application
         params['mobile_app']['version'] = params['version']
       end
 
-      params.reject { |k, v| v.empty? }
+      params.reject { |k, v| v.nil? || v.empty? }
       params['device'].merge(params['mobile_app'].inject({}) {|hash, values| hash["mobile_app_#{values.first}"] = values.last; hash })
 
       params['username']             = params['username'].to_s.gsub(/\s/, '').upcase
