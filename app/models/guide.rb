@@ -42,9 +42,9 @@ class Guide
 
   def to_json(arg = nil)
     "{
-      'id': '#{@id}',
-      'path': '#{api_path}'
-      'updated_at': '#{updated_at}'
+      \"id\": \"#{@id}\",
+      \"path\": \"#{api_path}\",
+      \"updated_at\": \"#{updated_at}\"
     }"
   end
 
