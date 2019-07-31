@@ -191,6 +191,21 @@ module Application
       halt 404, 'guide not found'
     end
 
+    # @api public
+    # Maps relative to a guides
+    #
+    # for example:
+    #    /guides/1507.01/maps/EG6-M1334-Safaga-EN/0/0/0.jpg
+    get '/guides/:guide_id/maps/:name/:scale/:x/:y' do
+      guide = Guide.new(params['guide_id'])
+
+      content_type File.extname(params['y'])
+
+      send_file File.join(guide.web_path, 'maps', params['name'], params['scale'], params['x'], params['y'])
+    rescue GuideNotFound => e
+      halt 404, 'guide not found'
+    end
+
     # @api private
     get '/last_update' do
       {time: File.mtime('public/trips.json')}.to_json
