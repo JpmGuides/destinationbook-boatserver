@@ -59,7 +59,7 @@ class Guide
     Zip::File.open(zip_path) do |zip_file|
       zip_file.each do |f|
         fpath = File.join(web_path, f.name)
-        FileUtils.mkdir_p(fpath) unless (File.exist?(File.dirname(fpath)))
+        FileUtils.mkdir_p(File.dirname(fpath)) unless (File.exist?(File.dirname(fpath)))
         zip_file.extract(f, fpath) unless (File.exist?(fpath))
       end
     end
