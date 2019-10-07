@@ -51,7 +51,7 @@ class Synchronizer
       page = page + 1
     end while page_trips.count > 0
 
-    puts trips.count
+    trips = trips.select {|t| t['reference'] =~ /^#{config['filter']}.*$/} if config['filter']
     trips
   end
 

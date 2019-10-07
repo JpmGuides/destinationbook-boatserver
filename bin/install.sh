@@ -18,5 +18,5 @@ cp config/settings.yaml.sample config/settings.yaml
 bundle install
 
 # make server start at boot time
-system 'cp', 'db_puma.sh', '/etc/init.d/db_puma.sh'
-update-rc.d db_puma.sh defaults
+sudo cp bin/db_puma.service /etc/systemd/system/db_puma.service
+sudo systemctl enable db_puma.service
