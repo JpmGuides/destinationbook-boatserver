@@ -242,12 +242,14 @@ class Synchronizer
     soft_id = guide['id'].gsub('.', '-')
     soft_id.upcase!
 
+    client_reference = config['client_reference'] || 'HKLF'
+
     trip_json['reference'] = soft_id
     trip_json['file_count'] = trip_json['file_count'] + 1
     trip_json['files_size'] = trip_json['files_size'] + guide['size']
     trip_json['name'] = guide['name']
     trip_json['description'] = guide['description']
-    trip_json['token'] = "HKLF#{soft_id}"
+    trip_json['token'] = "#{client_reference}#{soft_id}"
     trip_json['styles']['background_image']['url'] = "http://#{config['local_url']}.xip.io/export_cache/backgrounds/aqua.jpg"
     trip_json['styles']['logo']['url'] = "http://#{config['local_url']}.xip.io/export_cache/logo/client/11.png"
 
@@ -260,7 +262,7 @@ class Synchronizer
     }
     trip_json['guides'].push(guide_json)
 
-    FileManager.new("public/wallets/GUEST_HKLF#{soft_id}.json", trip_json.to_json).write!
+    FileManager.new("public/wallets/GUEST_#{client_reference}#{soft_id}.json", trip_json.to_json).write!
 
     trip = {
       'name' => guide['name'],
@@ -274,7 +276,7 @@ class Synchronizer
       'bookings' => [
         {
           'username' => 'GUEST',
-          'authentication_token' => "HKLF#{soft_id}",
+          'authentication_token' => "#{client_reference}#{soft_id}",
           'updated_at' => guide['generated_at']
         }
       ],
